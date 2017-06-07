@@ -8,8 +8,9 @@
 
 #listItems {
     margin: auto;
-    width: 50%;
+    width: 24%;
     padding: 1em;
     background-color: white;
     text-align: center;
 }
+#listItems ul li { display: inline; }
