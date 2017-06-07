@@ -13,24 +13,17 @@
 </head>
 
 <body>
-
-    <!-- Start your project here-->
-    <div id="container" class="card" style="width: 275px;">
-        <div class="md-form">
-            <input placeholder="Enter a commodity" type="text" id="commodity" class="form-control">
-        </div>
-        <button id="add" type="button" class="btn btn-success">
+    <form class="md-form">
+        <input placeholder="Enter a commodity" type="text" id="commodity" class="form-control">
+        <button id="add" type="submit" class="btn btn-success">
             Add
-        </button>
-        <br>
+            </button>
+    </form>
+    <div id="listItems">
+        <ul id="list">
+
+        </ul>
     </div>
-        <div id="listItems">
-            <ul id="list">
-
-            </ul>
-        </div>
-    <!-- /Start your project here-->
-
     <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="js/tether.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>

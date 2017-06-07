@@ -1,16 +1,22 @@
+body{
+    margin-top: .25em; 
+}
 .card {
     margin: auto;
     padding: 1em;
-    margin-top: 2em;
-    background-color: white;
+    margin-top: 1em;
     text-align: center;
 }
 
 #listItems {
     margin: auto;
-    width: 24%;
-    padding: 1em;
+    width: 75%;
+    padding: .25em;
     background-color: white;
     text-align: center;
 }
-#listItems ul li { display: inline; }
+
+form{
+    margin: auto;
+    width: 75%;
+}
