@@ -25,6 +25,7 @@ const app = {
         if (JSON.parse(localStorage.getItem("added")) == undefined) {
             localStorage.setItem("added", JSON.stringify([]));
         }
+        this.revert = ''
         this.loadSaved()
     },
 
@@ -36,6 +37,15 @@ const app = {
         item
             .querySelector('.name')
             .textContent = commd.commodity
+
+        item
+            .querySelector('.name')
+            .addEventListener('click',app.click)
+
+        item
+            .querySelector('.name')
+            .addEventListener('blur',app.blured)
+
         item
             .querySelector('.price')
             .textContent = price
@@ -48,6 +58,18 @@ const app = {
             app.favFunct.bind(item.querySelector('.btn-yellow'))()
         }
         return item
+    },
+
+    blured(){
+        this.contentEditable="false"
+        if(app.commds[this.textContent.toLowerCase()] == undefined){
+            this.textContent = app.revert
+        }
+    },
+
+    click(){
+        app.revert = this.textContent
+        this.contentEditable="true"
     },
 
     capitalizeFirstLetter(string) {
@@ -155,7 +177,6 @@ const app = {
                         added.push(commd)
                         localStorage.setItem("added", JSON.stringify(added));
                     }
-
                     document.getElementById('commodity').placeholder = 'Enter a commodity'
                     document.getElementById('commodity').value = ''
                 },
