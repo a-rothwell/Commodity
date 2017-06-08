@@ -1,6 +1,7 @@
 const app = {
     init() {
         document.querySelector("#add").addEventListener('click', this.addCom.bind(this))
+        this.template = document.querySelector('.template')
         this.commds = {
             'crude oil': "OPEC/ORB.json",
             'natural gas': "CHRIS/CME_NG1.json",
@@ -22,38 +23,30 @@ const app = {
             'wool': "ODA/PWOOLC_USD.json"
         }
         if (JSON.parse(localStorage.getItem("added")) == undefined) {
-            this.added = [];
-            localStorage.setItem("added", JSON.stringify(added));
+            localStorage.setItem("added", JSON.stringify([]));
         }
         this.loadSaved()
     },
 
     newEntry(commd, price) {
-        const item = document.createElement('li')
+        const item = this.template.cloneNode(true)
+        item.classList.remove('template')
         item.classList.add('listItem')
         commd.commodity = app.capitalizeFirstLetter(commd.commodity)
-        item.innerHTML =
-            `
-            <div class ="card">
-                <div>
-                    <p>${commd.commodity}</p>
-                    Today's Price: $${price}
-                    <button type="button" class="btn btn-yellow">
-                        Favorite
-                    </button>
-                    <button type="button" class="btn btn-danger">
-                        delete
-                    </button>
-                    <button type="button" class="btn btn-primary up">
-                        &#8593
-                    </button>
-                    <button type="button" class="btn btn-primary down">
-                        &#8595
-                    </button>
-                </div>
-            </div>
-        `
+        item
+            .querySelector('.name')
+            .textContent = commd.commodity
+        item
+            .querySelector('.price')
+            .textContent = price
         item.style.fontSize = "medium"
+        item.querySelector('.btn-yellow').addEventListener('click', app.favFunct)
+        item.querySelector('.btn-danger').addEventListener('click', app.deleteFunct)
+        item.querySelector('.up').addEventListener('click', app.moveUp)
+        item.querySelector('.down').addEventListener('click', app.moveDown)
+        if (commd.isFavorite) {
+            app.favFunct.bind(item.querySelector('.btn-yellow'))()
+        }
         return item
     },
 
@@ -63,30 +56,50 @@ const app = {
 
     addCom(ev) {
         ev.preventDefault()
-        this.onCreate(document.getElementById('commodity').value.toLowerCase(), false)
+        const commd = {
+            commodity: document.getElementById('commodity').value.toLowerCase(),
+            isFavorite: false
+        }
+        this.onCreate(commd, false)
     },
 
     favFunct() {
         if (this.parentElement.parentElement.style.backgroundColor == '') {
             this.parentElement.parentElement.style.backgroundColor = '#ff0000'
             $(this.parentElement.parentElement).addClass('animated pulse infinite')
+
+            let added = JSON.parse(localStorage.getItem("added"))
+            let name = this.parentElement.querySelector('.name').innerHTML
+            const pos = app.findIndex(added, name)
+            added[pos].isFavorite = true
+            localStorage.setItem("added", JSON.stringify(added));
+
         } else {
             this.parentElement.parentElement.style.backgroundColor = ''
             $(this.parentElement.parentElement).removeClass('animated pulse infinite')
+
+            let added = JSON.parse(localStorage.getItem("added"))
+            let name = this.parentElement.querySelector('.name').innerHTML
+            const pos = app.findIndex(added, name)
+            added[pos].isFavorite = false
+            localStorage.setItem("added", JSON.stringify(added));
         }
     },
 
     deleteFunct() {
         let added = JSON.parse(localStorage.getItem("added"))
-        const pos = added.indexOf(this.parentElement.querySelector('p').innerHTML.toLowerCase())
+        let name = this.parentElement.querySelector('.name').innerHTML
+        const pos = app.findIndex(added, name)
         added.splice(pos, 1)
         this.parentElement.parentElement.remove(this.parentElement)
         localStorage.setItem("added", JSON.stringify(added));
     },
 
     moveUp() {
-        let added = JSON.parse(localStorage.added)
-        const pos = added.indexOf(this.parentElement.querySelector('p').innerHTML.toLowerCase())
+        let added = JSON.parse(localStorage.getItem("added"))
+        let name = this.parentElement.querySelector('.name').innerHTML
+        const pos = app.findIndex(added, name)
+
         if (pos != added.length - 1) {
             let temp = added[pos]
             added[pos] = added[pos + 1]
@@ -97,8 +110,10 @@ const app = {
     },
 
     moveDown() {
-        let added = JSON.parse(localStorage.added)
-        const pos = added.indexOf(this.parentElement.querySelector('p').innerHTML.toLowerCase())
+        let added = JSON.parse(localStorage.getItem("added"))
+        let name = this.parentElement.querySelector('.name').innerHTML
+        const pos = app.findIndex(added, name)
+
         if (pos != 0) {
             let temp = added[pos]
             added[pos] = added[pos - 1]
@@ -108,37 +123,39 @@ const app = {
         app.loadSaved()
     },
 
+    findIndex(array, name) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i].commodity == name) {
+                return i
+            }
+        }
+    },
+
     loadSaved() {
         document.querySelector('ul').innerHTML = ''
-        let added = JSON.parse(localStorage.added)
+        let added = JSON.parse(localStorage.getItem("added"))
         added.forEach(function (entry) {
             app.onCreate(entry, true)
         })
     },
 
-    onCreate(entry, reload) {
-        if (this.commds[entry.toLowerCase()] != undefined) {
+    onCreate(commd, reload) {
+        if (this.commds[commd.commodity.toLowerCase()] != undefined) {
             $.ajax({
                 type: "GET",
                 dataType: "json",
                 async: false,
-                url: 'https://www.quandl.com/api/v3/datasets/' + this.commds[entry.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+                url: 'https://www.quandl.com/api/v3/datasets/' + this.commds[commd.commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
                 success: function (data) {
-                    const commd = {
-                        commodity: entry
-                    }
-                    const list = document.querySelector('#list')
                     let price = data.dataset.data[0][1]
-                    list.insertBefore(app.newEntry(commd,price), document.querySelector('li'))
+                    this.list = document.querySelector('#list')
+                    this.list.insertBefore(app.newEntry(commd, price), this.list.firstChild)
                     if (!reload) {
-                        let added = JSON.parse(localStorage.added)
-                        added.push(entry)
+                        let added = JSON.parse(localStorage.getItem("added"))
+                        added.push(commd)
                         localStorage.setItem("added", JSON.stringify(added));
                     }
-                    document.querySelector('.btn-yellow').addEventListener('click', app.favFunct)
-                    document.querySelector('.btn-danger').addEventListener('click', app.deleteFunct)
-                    document.querySelector('.up').addEventListener('click', app.moveUp)
-                    document.querySelector('.down').addEventListener('click', app.moveDown)
+
                     document.getElementById('commodity').placeholder = 'Enter a commodity'
                     document.getElementById('commodity').value = ''
                 },

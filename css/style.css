@@ -20,3 +20,6 @@ form{
     margin: auto;
     width: 75%;
 }
+.template {
+  display: none;
+}
