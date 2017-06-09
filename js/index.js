@@ -32,8 +32,8 @@ const app = {
             localStorage.setItem("portfolioValue", "0");
         }
 
-        document.querySelector("#wallet").textContent = localStorage.getItem("accountValue")
-        document.querySelector("#portfolio").textContent = localStorage.getItem("portfolioValue")
+        document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
+        document.querySelector("#portfolio").textContent = '$ ' + localStorage.getItem("portfolioValue")
         this.revert = ''
         this.loadSaved()
     },
@@ -49,15 +49,15 @@ const app = {
 
         item
             .querySelector('.name')
-            .addEventListener('click',app.click)
+            .addEventListener('click', app.click)
 
         item
             .querySelector('.name')
-            .addEventListener('blur',app.blured)
+            .addEventListener('blur', app.blured)
 
         item
             .querySelector('.price')
-            .textContent = price
+            .textContent = '$ ' + price
         item.style.fontSize = "medium"
         item.querySelector('.btn-yellow').addEventListener('click', app.favFunct)
         item.querySelector('.btn-danger').addEventListener('click', app.deleteFunct)
@@ -69,17 +69,17 @@ const app = {
         return item
     },
 
-    blured(){
-        this.contentEditable="false"
+    blured() {
+        this.contentEditable = "false"
 
-        if(app.commds[this.textContent.toLowerCase()] == undefined){
+        if (app.commds[this.textContent.toLowerCase()] == undefined) {
             this.textContent = app.revert
         }
     },
 
-    click(){
+    click() {
         app.revert = this.textContent
-        this.contentEditable="true"
+        this.contentEditable = "true"
     },
 
     capitalizeFirstLetter(string) {
@@ -90,16 +90,22 @@ const app = {
         ev.preventDefault()
         const commd = {
             commodity: document.getElementById('commodity').value.toLowerCase(),
-            isFavorite: false
+            isFavorite: false,
+            quantity: 0
         }
-        this.onCreate(commd, false)
+        if (this.commds[commd.commodity.toLowerCase()] != undefined) {
+            this.onCreate(commd, false)
+            
+        } else {
+            document.getElementById('commodity').placeholder = 'Unknown commodity'
+            document.getElementById('commodity').value = ''
+        }
     },
 
     favFunct() {
         if (this.parentElement.parentElement.style.backgroundColor == '') {
             this.parentElement.parentElement.style.backgroundColor = '#ff0000'
             $(this.parentElement.parentElement).addClass('animated pulse infinite')
-
             let added = JSON.parse(localStorage.getItem("added"))
             let name = this.parentElement.querySelector('.name').innerHTML
             const pos = app.findIndex(added, name)
@@ -109,7 +115,6 @@ const app = {
         } else {
             this.parentElement.parentElement.style.backgroundColor = ''
             $(this.parentElement.parentElement).removeClass('animated pulse infinite')
-
             let added = JSON.parse(localStorage.getItem("added"))
             let name = this.parentElement.querySelector('.name').innerHTML
             const pos = app.findIndex(added, name)
@@ -172,29 +177,24 @@ const app = {
     },
 
     onCreate(commd, reload) {
-        if (this.commds[commd.commodity.toLowerCase()] != undefined) {
-            $.ajax({
-                type: "GET",
-                dataType: "json",
-                async: false,
-                url: 'https://www.quandl.com/api/v3/datasets/' + this.commds[commd.commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
-                success: function (data) {
-                    let price = data.dataset.data[0][1]
-                    this.list = document.querySelector('#list')
-                    this.list.insertBefore(app.newEntry(commd, price), this.list.firstChild)
-                    if (!reload) {
-                        let added = JSON.parse(localStorage.getItem("added"))
-                        added.push(commd)
-                        localStorage.setItem("added", JSON.stringify(added));
-                    }
-                    document.getElementById('commodity').placeholder = 'Enter a commodity'
-                    document.getElementById('commodity').value = ''
-                },
-            });
-        } else {
-            document.getElementById('commodity').placeholder = 'Unknown commodity'
-            document.getElementById('commodity').value = ''
-        }
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            async: false,
+            url: 'https://www.quandl.com/api/v3/datasets/' + this.commds[commd.commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+            success: function (data) {
+                let price = data.dataset.data[0][1]
+                this.list = document.querySelector('#list')
+                this.list.insertBefore(app.newEntry(commd, price), this.list.firstChild)
+                if (!reload) {
+                    let added = JSON.parse(localStorage.getItem("added"))
+                    added.push(commd)
+                    localStorage.setItem("added", JSON.stringify(added));
+                }
+                document.getElementById('commodity').placeholder = 'Enter a commodity'
+                document.getElementById('commodity').value = ''
+            },
+        });
     }
 }
 

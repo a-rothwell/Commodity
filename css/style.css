@@ -1,7 +1,7 @@
 span{
     position:absolute; 
     top:50%;
-    line-height:3em
+    line-height:3em;
 }
 i{
     width: 2rem;
@@ -11,4 +11,7 @@ form{
 }
 .template {
   display: none;
+}
+.container{
+    margin: auto;
 }
