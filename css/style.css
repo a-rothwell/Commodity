@@ -1,24 +1,13 @@
-body{
-    margin-top: .25em; 
+span{
+    position:absolute; 
+    top:50%;
+    line-height:3em
 }
-.card {
-    margin: auto;
-    padding: 1em;
-    margin-top: 1em;
-    text-align: center;
+i{
+    width: 2rem;
 }
-
-#listItems {
-    margin: auto;
-    width: 75%;
-    padding: .25em;
-    background-color: white;
-    text-align: center;
-}
-
 form{
     margin: auto;
-    width: 75%;
 }
 .template {
   display: none;

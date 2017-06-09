@@ -13,33 +13,71 @@
 </head>
 
 <body>
-    <form class="md-form">
-        <input placeholder="Enter a commodity" type="text" id="commodity" class="form-control" required>
-        <button id="add" type="submit" class="btn btn-success">
-            Add
-            </button>
-    </form>
-    <div id="listItems">
-        <ul id="list">
-                <div class ="card template">
-                <div>
-                    <span class = "name"></span>
-                    <span class = "price"></span>
-                    <button type="button" class="btn btn-yellow">
-                        Favorite
-                    </button>
-                    <button type="button" class="btn btn-danger">
-                        delete
-                    </button>
-                    <button type="button" class="btn btn-primary up">
-                        &#8593
-                    </button>
-                    <button type="button" class="btn btn-primary down">
-                        &#8595
-                    </button>
+    <nav class="navbar navbar-toggleable-md navbar-dark bg-primary">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNav1" aria-controls="navbarNav1"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+            <strong>Commodity</strong>
+        </a>
+    </nav>
+    <br>
+    <div class="row container justify-content-end">
+        <div class="col-md-3">
+            <div class="row card">
+                <form>
+                    <input placeholder="Enter a commodity" type="text" id="commodity" class="form-control" required>
+                    <input placeholder="Enter how many" type="number" id="quantity" class="form-control" required>
+                    <button id="add" type="submit" class="btn btn-success">
+                    Place Order
+                </button>
+                </form>
+            </div>
+            <br>
+            <div class="row card" >
+                <div class="card-header primary-color white-text">
+                    Account Balance
+                </div>
+                <div class="card-block" id = "wallet">
+                    $$$
                 </div>
             </div>
-        </ul>
+            <br>
+            <div class="row card">
+                <div class="card-header primary-color white-text">
+                    Portfolio value
+                </div>
+                <div class="card-block" id = "portfolio">
+                    $$$
+                </div>
+            </div>
+        </div>
+        <div id="listItems" class="col-md-9">
+            <ul id="list" class="card">
+                <div class="template">
+                    <div class="row no-gutters">
+                        <button type="button" class="btn btn-yellow col col-md-auto">
+                            <i class="fa fa-star" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary up col col-md-auto">
+                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-primary down col col-md-auto">
+                            <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                        </button>
+                        <span class="name col"></span>
+                        <span class="price col">$</span>
+                        <span class="quatity col">#</span>
+                        <button type="button" class="btn btn-success col">Buy</button>
+                        <button type="button" class="btn btn-amber col">Sell</button>
+                        <button type="button" class="btn btn-danger col col-md-auto">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </ul>
+        </div>
     </div>
     <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="js/tether.min.js"></script>

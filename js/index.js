@@ -25,6 +25,15 @@ const app = {
         if (JSON.parse(localStorage.getItem("added")) == undefined) {
             localStorage.setItem("added", JSON.stringify([]));
         }
+        if (JSON.parse(localStorage.getItem("accountValue")) == undefined) {
+            localStorage.setItem("accountValue", "1000000");
+        }
+        if (JSON.parse(localStorage.getItem("portfolioValue")) == undefined) {
+            localStorage.setItem("portfolioValue", "0");
+        }
+
+        document.querySelector("#wallet").textContent = localStorage.getItem("accountValue")
+        document.querySelector("#portfolio").textContent = localStorage.getItem("portfolioValue")
         this.revert = ''
         this.loadSaved()
     },
@@ -62,6 +71,7 @@ const app = {
 
     blured(){
         this.contentEditable="false"
+
         if(app.commds[this.textContent.toLowerCase()] == undefined){
             this.textContent = app.revert
         }
