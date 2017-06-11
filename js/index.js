@@ -63,6 +63,8 @@ const app = {
         item.querySelector('.btn-danger').addEventListener('click', app.deleteFunct)
         item.querySelector('.up').addEventListener('click', app.moveUp)
         item.querySelector('.down').addEventListener('click', app.moveDown)
+        item.querySelector('.buy').addEventListener('click', app.buy)
+        item.querySelector ('.sell').addEventListener('click',app.sell)
         if (commd.isFavorite) {
             app.favFunct.bind(item.querySelector('.btn-yellow'))()
         }
@@ -82,6 +84,44 @@ const app = {
         this.contentEditable = "true"
     },
 
+    buy(){
+        console.log(this)
+        let name = this.parentElement.querySelector('.name').innerHTML
+        let added = JSON.parse(localStorage.getItem("added"))
+        const pos = app.findIndex(added, name)
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            async: false,
+            url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[added[pos].commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+            success: function (data) {
+                let price = data.dataset.data[0][1]
+                added[pos].quantity++
+
+                let accountValue = (JSON.parse(localStorage.getItem("accountValue")).toFixed(2) - price.toFixed(2)).toFixed(2)
+                localStorage.setItem("accountValue", accountValue);
+
+                document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
+                app.updatePortfolio()
+                document.querySelector("#portfolio").textContent = '$ ' + localStorage.getItem("portfolioValue")
+
+                localStorage.setItem("added", JSON.stringify(added))
+            }
+        })
+    },
+
+    sell(){
+
+    },
+
+    updatePortfolio(){
+        let added = JSON.parse(localStorage.getItem("added"))
+        let total = 0
+        added.forEach(function (entry) {
+            //total += app.onCreate(entry, true)
+        })
+    },
+
     capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     },
@@ -89,11 +129,12 @@ const app = {
     addCom(ev) {
         ev.preventDefault()
         const commd = {
-            commodity: document.getElementById('commodity').value.toLowerCase(),
+            commodity: document.getElementById('commodity').value,
             isFavorite: false,
             quantity: 0
         }
-        if (this.commds[commd.commodity.toLowerCase()] != undefined) {
+        let added = JSON.parse(localStorage.getItem("added"))
+        if (this.commds[commd.commodity.toLowerCase()] != undefined && app.findIndex(added,commd.commodity) == -1) {
             this.onCreate(commd, false)
             
         } else {
@@ -162,10 +203,11 @@ const app = {
 
     findIndex(array, name) {
         for (let i = 0; i < array.length; i++) {
-            if (array[i].commodity == name) {
+            if (array[i].commodity.toLowerCase() == name.toLowerCase()) {
                 return i
             }
         }
+        return -1
     },
 
     loadSaved() {
@@ -194,7 +236,7 @@ const app = {
                 document.getElementById('commodity').placeholder = 'Enter a commodity'
                 document.getElementById('commodity').value = ''
             },
-        });
+        })
     }
 }
 
