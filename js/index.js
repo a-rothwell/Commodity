@@ -60,6 +60,11 @@ const app = {
         item
             .querySelector('.price')
             .textContent = '$ ' + price
+
+        item
+            .querySelector('.quatity')
+            .textContent = commd.quantity
+
         item.style.fontSize = "medium"
         item.querySelector('.btn-yellow').addEventListener('click', app.favFunct)
         item.querySelector('.btn-danger').addEventListener('click', app.deleteFunct)
@@ -227,7 +232,7 @@ const app = {
         localStorage.setItem("portfolioValue", portfolioValue)
         added[pos].quantity = 0
 
-        document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
+        document.querySelector("#wallet").textContent = '$ ' + (JSON.parse(localStorage.getItem("accountValue"))).toFixed(2)
         document.querySelector("#portfolio").textContent = '$ ' + (JSON.parse(localStorage.getItem("portfolioValue"))).toFixed(2)
         this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
         added.splice(pos, 1)
