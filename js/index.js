@@ -80,9 +80,17 @@ const app = {
 
     blured() {
         this.contentEditable = "false"
-
         if (app.commds[this.textContent.toLowerCase()] == undefined) {
             this.textContent = app.revert
+        }
+        else{
+            let added = JSON.parse(localStorage.getItem("added"))
+            const pos = app.findIndex(added, app.revert)
+            console.log(added)
+            added[pos].commodity = this.textContent
+            console.log(added)
+            localStorage.setItem("added", JSON.stringify(added))
+            app.loadSaved()
         }
     },
 
