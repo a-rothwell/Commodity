@@ -26,10 +26,12 @@ const app = {
             localStorage.setItem("added", JSON.stringify([]));
         }
         if (JSON.parse(localStorage.getItem("accountValue")) == undefined) {
-            localStorage.setItem("accountValue", "1000000");
+            let value = (1000000).toFixed(2)
+            localStorage.setItem("accountValue", value)
         }
         if (JSON.parse(localStorage.getItem("portfolioValue")) == undefined) {
-            localStorage.setItem("portfolioValue", "0");
+            let value = (0).toFixed(2)
+            localStorage.setItem("portfolioValue", value)
         }
 
         document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
@@ -64,7 +66,7 @@ const app = {
         item.querySelector('.up').addEventListener('click', app.moveUp)
         item.querySelector('.down').addEventListener('click', app.moveDown)
         item.querySelector('.buy').addEventListener('click', app.buy)
-        item.querySelector ('.sell').addEventListener('click',app.sell)
+        item.querySelector('.sell').addEventListener('click', app.sell)
         if (commd.isFavorite) {
             app.favFunct.bind(item.querySelector('.btn-yellow'))()
         }
@@ -84,11 +86,12 @@ const app = {
         this.contentEditable = "true"
     },
 
-    buy(){
-        console.log(this)
+    buy() {
         let name = this.parentElement.querySelector('.name').innerHTML
         let added = JSON.parse(localStorage.getItem("added"))
         const pos = app.findIndex(added, name)
+        added[pos].quantity++
+        this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
         $.ajax({
             type: "GET",
             dataType: "json",
@@ -96,30 +99,32 @@ const app = {
             url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[added[pos].commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
             success: function (data) {
                 let price = data.dataset.data[0][1]
-                added[pos].quantity++
-
-                let accountValue = (JSON.parse(localStorage.getItem("accountValue")).toFixed(2) - price.toFixed(2)).toFixed(2)
+                let accountValue = (JSON.parse(localStorage.getItem("accountValue")) - price)
                 localStorage.setItem("accountValue", accountValue);
+                document.querySelector("#wallet").textContent = '$ ' + (JSON.parse(localStorage.getItem("accountValue"))).toFixed(2)
+                let total = 0
+                added.forEach(function (entry) {
+                    $.ajax({
+                        type: "GET",
+                        dataType: "json",
+                        async: false,
+                        url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[entry.commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+                        success: function (data) {
+                            let price = data.dataset.data[0][1]
+                            total = (total + (entry.quantity * price))
 
-                document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
-                app.updatePortfolio()
-                document.querySelector("#portfolio").textContent = '$ ' + localStorage.getItem("portfolioValue")
-
+                        }
+                    })
+                })
+                localStorage.setItem("portfolioValue", total);
+                document.querySelector("#portfolio").textContent = '$ ' + (JSON.parse(localStorage.getItem("portfolioValue"))).toFixed(2)
                 localStorage.setItem("added", JSON.stringify(added))
             }
         })
     },
 
-    sell(){
+    sell() {
 
-    },
-
-    updatePortfolio(){
-        let added = JSON.parse(localStorage.getItem("added"))
-        let total = 0
-        added.forEach(function (entry) {
-            //total += app.onCreate(entry, true)
-        })
     },
 
     capitalizeFirstLetter(string) {
@@ -134,9 +139,9 @@ const app = {
             quantity: 0
         }
         let added = JSON.parse(localStorage.getItem("added"))
-        if (this.commds[commd.commodity.toLowerCase()] != undefined && app.findIndex(added,commd.commodity) == -1) {
+        if (this.commds[commd.commodity.toLowerCase()] != undefined && app.findIndex(added, commd.commodity) == -1) {
             this.onCreate(commd, false)
-            
+
         } else {
             document.getElementById('commodity').placeholder = 'Unknown commodity'
             document.getElementById('commodity').value = ''
@@ -168,6 +173,28 @@ const app = {
         let added = JSON.parse(localStorage.getItem("added"))
         let name = this.parentElement.querySelector('.name').innerHTML
         const pos = app.findIndex(added, name)
+        let accountValue = JSON.parse(localStorage.getItem("accountValue"))
+        let portfolioValue = JSON.parse(localStorage.getItem("portfolioValue"))
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            async: false,
+            url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[added[pos].commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+            success: function (data) {
+                let price = data.dataset.data[0][1]
+                accountValue += (added[pos].quantity * price)
+                portfolioValue -= (added[pos].quantity * price)
+            }
+        })
+
+        localStorage.setItem("accountValue", accountValue)
+        localStorage.setItem("portfolioValue", portfolioValue)
+        added[pos].quantity = 0
+
+        document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
+        document.querySelector("#portfolio").textContent = '$ ' + (JSON.parse(localStorage.getItem("portfolioValue"))).toFixed(2)
+        this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
         added.splice(pos, 1)
         this.parentElement.parentElement.remove(this.parentElement)
         localStorage.setItem("added", JSON.stringify(added));
