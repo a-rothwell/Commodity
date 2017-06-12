@@ -34,8 +34,8 @@ const app = {
             localStorage.setItem("portfolioValue", value)
         }
 
-        document.querySelector("#wallet").textContent = '$ ' + localStorage.getItem("accountValue")
-        document.querySelector("#portfolio").textContent = '$ ' + localStorage.getItem("portfolioValue")
+        document.querySelector("#wallet").textContent = '$ ' + JSON.parse(localStorage.getItem("accountValue")).toFixed(2)
+        document.querySelector("#portfolio").textContent = '$ ' + JSON.parse(localStorage.getItem("portfolioValue")).toFixed(2)
         this.revert = ''
         this.loadSaved()
     },
@@ -91,7 +91,7 @@ const app = {
         let added = JSON.parse(localStorage.getItem("added"))
         const pos = app.findIndex(added, name)
         added[pos].quantity++
-        this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
+            this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
         $.ajax({
             type: "GET",
             dataType: "json",
@@ -124,7 +124,42 @@ const app = {
     },
 
     sell() {
+        let name = this.parentElement.querySelector('.name').innerHTML
+        let added = JSON.parse(localStorage.getItem("added"))
+        const pos = app.findIndex(added, name)
+        if (added[pos].quantity != 0) {
+            added[pos].quantity--
+                this.parentElement.querySelector('.quatity').innerHTML = added[pos].quantity
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                async: false,
+                url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[added[pos].commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+                success: function (data) {
+                    let price = data.dataset.data[0][1]
+                    let accountValue = (JSON.parse(localStorage.getItem("accountValue")) + price)
+                    localStorage.setItem("accountValue", accountValue);
+                    document.querySelector("#wallet").textContent = '$ ' + (JSON.parse(localStorage.getItem("accountValue"))).toFixed(2)
+                    let total = 0
+                    added.forEach(function (entry) {
+                        $.ajax({
+                            type: "GET",
+                            dataType: "json",
+                            async: false,
+                            url: 'https://www.quandl.com/api/v3/datasets/' + app.commds[entry.commodity.toLowerCase()] + '?api_key=2NTN3pfHTxvHT3ak4G9C',
+                            success: function (data) {
+                                let price = data.dataset.data[0][1]
+                                total = (total + (entry.quantity * price))
 
+                            }
+                        })
+                    })
+                    localStorage.setItem("portfolioValue", total);
+                    document.querySelector("#portfolio").textContent = '$ ' + (JSON.parse(localStorage.getItem("portfolioValue"))).toFixed(2)
+                    localStorage.setItem("added", JSON.stringify(added))
+                }
+            })
+        }
     },
 
     capitalizeFirstLetter(string) {
